@@ -93,23 +93,23 @@ class DatabaseHandler:
         """
         query = """
         SELECT *, 
-               ABS(LotArea - ?) AS lot_area_diff,
-               ABS(OverallQual - ?) AS overall_quality_diff,
-               ABS(OverallCond - ?) AS overall_condition_diff,
-               ABS(CentralAir - ?) AS central_air_diff,
-               ABS(FullBath - ?) AS full_bath_diff,
-               ABS(BedroomAbvGr - ?) AS bedrooms_diff,
-               ABS(GarageCars - ?) AS garage_cars_diff,
-               (ABS(LotArea - ?) +
-                ABS(OverallQual - ?) +
-                ABS(OverallCond - ?) +
-                ABS(CentralAir - ?) +
-                ABS(FullBath - ?) +
-                ABS(BedroomAbvGr - ?) +
-                ABS(GarageCars - ?)) AS total_diff
-        FROM properties
-        ORDER BY total_diff ASC, YrSold DESC
-        LIMIT 1
+       ABS(LotArea - ?) / MAX(LotArea) AS lot_area_diff,
+       ABS(OverallQual - ?) / MAX(OverallQual) AS overall_quality_diff,
+       ABS(OverallCond - ?) / MAX(OverallCond) AS overall_condition_diff,
+       ABS(CentralAir - ?) AS central_air_diff,
+       ABS(FullBath - ?) / MAX(FullBath) AS full_bath_diff,
+       ABS(BedroomAbvGr - ?) / MAX(BedroomAbvGr) AS bedrooms_diff,
+       ABS(GarageCars - ?) / MAX(GarageCars) AS garage_cars_diff,
+       (ABS(LotArea - ?) / MAX(LotArea) +
+        ABS(OverallQual - ?) / MAX(OverallQual) +
+        ABS(OverallCond - ?) / MAX(OverallCond) +
+        ABS(CentralAir - ?) +
+        ABS(FullBath - ?) / MAX(FullBath) +
+        ABS(BedroomAbvGr - ?) / MAX(BedroomAbvGr) +
+        ABS(GarageCars - ?) / MAX(GarageCars)) AS total_diff
+FROM properties
+ORDER BY total_diff ASC, YrSold DESC
+LIMIT 1
         """
 
         # The inputs are repeated for each difference calculation and total_diff

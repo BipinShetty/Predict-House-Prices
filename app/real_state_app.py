@@ -51,7 +51,7 @@ class RealEstateApp:
     def generate_listing(self, *inputs):
         features, description = inputs[:-1], inputs[-1]
         full_data = self.db_handler.get_full_data_for_features(features)
-        listing = self.llm_handler.generate_listing(full_data, description)
+        listing = self.llm_handler.generate_listing_llm(full_data, description)
         self.db_handler.record_listing(listing)
         return listing
 
@@ -64,5 +64,5 @@ class RealEstateApp:
 
     def generate_customer_profiles(self, *inputs):
         full_data = self.db_handler.get_full_data_for_features(inputs)
-        profiles = self.llm_handler.generate_customer_profiles(full_data)
+        profiles = self.llm_handler.generate_listing_llm(full_data,description="")
         return profiles
