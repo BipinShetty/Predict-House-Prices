@@ -1,91 +1,68 @@
-import gradio as gr
+import torch
+from torch.utils.data import DataLoader
+import torch.nn as nn
+import torch.optim as optim
+from datasets.dataset import HousingDataset
 
+class RealEstateApp:
+    def __init__(self, db_handler, model_handler, llm_handler):
+        self.db_handler = db_handler
+        self.model_handler = model_handler
+        self.llm_handler = llm_handler
 
-class RealEstateAppUI:
-    def __init__(self, app):
-        self.app = app
+    def train_model(self, data, epochs=10, batch_size=32, lr=0.001):
+        dataset = HousingDataset(data)
+        train_loader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+        criterion = nn.MSELoss()
+        optimizer = optim.Adam(self.model_handler.model.parameters(), lr=lr)
 
-    def create_ui(self):
-        with gr.Blocks() as demo:
-            gr.Markdown("# 🏡 Real Estate Application")
-            gr.Markdown("A modern interface for property price estimation, customer profiling, and more.")
+        for epoch in range(epochs):
+            for batch_X, batch_y in train_loader:
+                optimizer.zero_grad()
+                predictions = self.model_handler.model(batch_X).squeeze()
+                loss = criterion(predictions, batch_y)
+                loss.backward()
+                optimizer.step()
+        self.model_handler.save_model()
 
-            # Tab: Sale Price Estimation and Recording
-            with gr.Tab("💰 Sale Price Estimation and Recording"):
-                with gr.Row():
-                    gr.Markdown("### Predict and Record Sale Price")
+    def predict_price(self, *inputs):
+        inputs_processed = [
+            float(inputs[i]) if i != 3 else 1.0 if inputs[i] == "Y" else 0.0
+            for i in range(len(inputs))
+        ]
+        inputs_tensor = torch.tensor([inputs_processed], dtype=torch.float32)
+        price = self.model_handler.model(inputs_tensor).item()
+        return f"Estimated Price: ${price:,.2f}"
 
-                with gr.Row():
-                    estimation_inputs = [
-                        gr.Number(label="Lot Area (sq ft)"),
-                        gr.Number(label="Overall Quality (1-10)"),
-                        gr.Number(label="Overall Condition (1-10)"),
-                        gr.Radio(["Y", "N"], label="Central Air"),
-                        gr.Number(label="Full Bathrooms"),
-                        gr.Number(label="Bedrooms"),
-                        gr.Number(label="Garage Cars"),
-                    ]
-                    predicted_price = gr.Textbox(label="Predicted Price", placeholder="Estimated sale price will appear here")
-                    gr.Button("🔮 Predict").click(
-                        self.app.predict_price, inputs=estimation_inputs, outputs=predicted_price
-                    )
+    def record_price(self, *inputs):
+        try:
+            self.db_handler.add_verified_price(*inputs)
+            return "Sale price recorded successfully!"
+        except Exception as e:
+            return f"Error recording sale price: {str(e)}"
 
-                with gr.Row():
-                    record_inputs = [
-                        gr.Number(label="Sale Price ($)", placeholder="Enter the verified sale price"),
-                        *estimation_inputs
-                    ]
-                    recorded_price = gr.Textbox(label="Recorded Price", placeholder="Sale price record confirmation")
-                    gr.Button("💾 Record Sale").click(
-                        self.app.record_price, inputs=record_inputs, outputs=recorded_price
-                    )
+    def copy_values(self, *args):
+        return args
 
-            # Tab: Sales Listing and Customer Profiling
-            with gr.Tab("📄 Sales Listing and Customer Profiling"):
-                gr.Markdown("### Explore Property Listings and Customer Insights")
+    def query_closest_match(self, *inputs):
+        result = self.db_handler.get_closest_match(inputs)
+        return f"Closest Match: {result}" if result else "No match found."
 
-                with gr.Row():
-                    query_inputs = [
-                        gr.Number(label="Lot Area (sq ft)"),
-                        gr.Number(label="Overall Quality (1-10)"),
-                        gr.Number(label="Overall Condition (1-10)"),
-                        gr.Radio(["Y", "N"], label="Central Air"),
-                        gr.Number(label="Full Bathrooms"),
-                        gr.Number(label="Bedrooms"),
-                        gr.Number(label="Garage Cars"),
-                    ]
-                    closest_match_output = gr.Textbox(label="Closest Match Property", placeholder="Matching property details will appear here")
-                    gr.Button("🔍 Query Closest Match").click(
-                        self.app.query_closest_match, inputs=query_inputs, outputs=closest_match_output
-                    )
+    def generate_listing(self, *inputs):
+        features, description = inputs[:-1], inputs[-1]
+        full_data = self.db_handler.get_full_data_for_features(features)
+        listing = self.llm_handler.generate_listing_llm(full_data, description)
+        self.db_handler.record_listing(listing)
+        return listing
 
-                gr.Markdown("#### 🏠 Generate Property Listing")
-                with gr.Row():
-                    description = gr.Textbox(label="Property Description", placeholder="Describe the property in detail")
-                    listing_output = gr.Textbox(label="Generated Listing", placeholder="AI-generated property listing will appear here")
-                    gr.Button("📝 Generate Listing").click(
-                        self.app.generate_listing,
-                        inputs=[*query_inputs, description],
-                        outputs=listing_output,
-                    )
+    def record_feedback(self, listing, feedback):
+        try:
+            self.db_handler.record_feedback(listing, feedback)
+            return "Feedback recorded successfully!"
+        except Exception as e:
+            return f"Error recording feedback: {str(e)}"
 
-                gr.Markdown("#### 📋 Submit Feedback for Listings")
-                with gr.Row():
-                    feedback = gr.Radio(["👍 Thumbs Up", "👎 Thumbs Down"], label="Feedback", type="value")
-                    feedback_output = gr.Textbox(label="Feedback Status", placeholder="Feedback submission status will appear here")
-                    gr.Button("✅ Submit Feedback").click(
-                        self.app.record_feedback,
-                        inputs=[listing_output, feedback],
-                        outputs=feedback_output,
-                    )
-
-                gr.Markdown("#### 👥 Generate Customer Profiles")
-                with gr.Row():
-                    customer_profiles_output = gr.Textbox(label="Customer Profiles", lines=10, placeholder="Customer profiles will be displayed here")
-                    gr.Button("👥 Generate Profiles").click(
-                        self.app.generate_customer_profiles,
-                        inputs=query_inputs,
-                        outputs=customer_profiles_output,
-                    )
-
-        demo.launch()
+    def generate_customer_profiles(self, *inputs):
+        full_data = self.db_handler.get_full_data_for_features(inputs)
+        profiles = self.llm_handler.generate_listing_llm(full_data,description="")
+        return profiles
