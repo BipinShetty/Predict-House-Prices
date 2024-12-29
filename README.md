@@ -13,10 +13,15 @@ This is a scalable real estate application designed for property agents and brok
 ### 2. Sales Listing and Customer Profiling
 - Query the closest matching property from the database based on selected features.
 - Generate a salesy property listing using GPT-2, leveraging property features and user descriptions.
-- Create 5 customer profiles tailored to the property, including occupation, income, family size, and lifestyle.
+- Create 5 customer profile
+s tailored to the property, including occupation, income, family size, and lifestyle.
 - Record user feedback (Thumbs Up/Down) for future reinforcement learning.
 
 ---
+
+![Screen Shot 2024-12-29 at 9 28 52 PM](https://github.com/user-attachments/assets/567d611e-6826-4a4d-8b89-a92db85ff103)
+![Screen Shot 2024-12-29 at 9 29 05 PM](https://github.com/user-attachments/assets/f21ee4c7-878d-469e-9bfd-6ed29bb5653d)
+
 
 ## Technical Stack
 ### Backend
@@ -34,6 +39,7 @@ This is a scalable real estate application designed for property agents and brok
 - Comprehensive logging for debugging and monitoring using Python's `logging` module.
 
 ---
+
 
 ## Installation and Setup
 
