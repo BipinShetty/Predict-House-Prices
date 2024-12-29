@@ -21,6 +21,9 @@ s tailored to the property, including occupation, income, family size, and lifes
 
 ![Screen Shot 2024-12-29 at 9 28 52 PM](https://github.com/user-attachments/assets/567d611e-6826-4a4d-8b89-a92db85ff103)
 ![Screen Shot 2024-12-29 at 9 29 05 PM](https://github.com/user-attachments/assets/f21ee4c7-878d-469e-9bfd-6ed29bb5653d)
+![Screen Shot 2024-12-29 at 9 46 53 PM](https://github.com/user-attachments/assets/ed7e0d38-f280-4e4b-b82d-a29ffd1141a1)
+
+
 
 
 ## Technical Stack
