@@ -16,9 +16,6 @@ This is a scalable real estate application designed for property agents and brok
 - Create 5 customer profiles tailored to the property, including occupation, income, family size, and lifestyle.
 - Record user feedback (Thumbs Up/Down) for future reinforcement learning.
 
-### 3. Light/Dark Mode Toggle
-- Aesthetic customization for better user experience in different lighting conditions.
-
 ---
 
 ## Technical Stack
@@ -61,7 +58,7 @@ source venv/bin/activate   # On Windows, use `venv\Scripts\activate`
 4. python main.py
 
 Usage
-Sale Price Estimation and Recording:
+### Sale Price Estimation and Recording:
 
 Input property features (e.g., Lot Area, Bedrooms).
 Click "Predict" to estimate the sale price.
@@ -97,15 +94,15 @@ Local SQLite database and GPT-2 model for simplicity and ease of deployment.
 V2 Improvements:
 Database:
 
-Migrate to a cloud database (e.g., PostgreSQL or MongoDB) for higher scalability.
+### Migrate to a cloud database (e.g., PostgreSQL or MongoDB) for higher scalability.
 Add caching (e.g., Redis) for faster queries.
 Model:
 
-Enhance the price prediction model with additional features.
+### Enhance the price prediction model with additional features.
 Support online learning to dynamically adapt to new data.
 LLM:
 
-Upgrade to larger models or fine-tuned LLMs for better listings and profiles.
+### Upgrade to larger models or fine-tuned LLMs for better listings and profiles.
 Implement reinforcement learning using user feedback.
 UI:
 
